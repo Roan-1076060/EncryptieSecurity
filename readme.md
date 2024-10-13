@@ -1,9 +1,31 @@
-### A very quick Encrpytion example
+# Encryptie Voorbeeld
 
-setup can be done as followed;
+Een eenvoudige React-applicatie die client-side encryptie demonstreert.
 
-Download zip or clone;
-npm install;
-npm run dev
+## Start
 
-Then open the link, input a password, type your note and save it , you can then test it by logging out and logging back in with a different password.
+1. clone de repository:
+2. Installeer npm:
+   ```
+   npm install
+   ```
+
+3. Start de server:
+   ```
+   npm run dev
+   ```
+
+4. Open de link in je browser
+
+## Gebruik
+
+1. Voer een wachtwoord in (minimaal 6 tekens)
+2. Maak en beheer encrypted notities
+3. Log uit en log opnieuw in met een ander wachtwoord om de encryptie te testen
+
+## Code
+
+Alle functies staan in de `App` component:
+- Gebruikersauthenticatie
+- Notitie-encryptie/-decryptie
+- Statusbeheer voor notities en gebruikersinterface
