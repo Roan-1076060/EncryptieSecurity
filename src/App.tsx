@@ -1,25 +1,27 @@
-import React, { useState, useEffect, KeyboardEvent } from 'react';
+import { useState, useEffect, KeyboardEvent } from "react";
 //@ts-ignore Since its a JavaScript library in a TypeScript project
-import CryptoJS from 'crypto-js';
-import './index.css';
+import CryptoJS from "crypto-js";
+import "./index.css";
 
 function App() {
   //States
-  const [password, setPassword] = useState('');
-  const [privateKey, setPrivateKey] = useState('');
+  const [password, setPassword] = useState("");
+  const [privateKey, setPrivateKey] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [note, setNote] = useState('');
-  const [notes, setNotes] = useState<Array<{ id: string; text: string; timestamp: number }>>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [note, setNote] = useState("");
+  const [notes, setNotes] = useState<
+    Array<{ id: string; text: string; timestamp: number }>
+  >([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     //Check for login value
-    const savedLoggedIn = localStorage.getItem('loggedIn');
-    if (savedLoggedIn === 'true') {
+    const savedLoggedIn = localStorage.getItem("loggedIn");
+    if (savedLoggedIn === "true") {
       setLoggedIn(true);
-      const savedKey = localStorage.getItem('privateKey');
+      const savedKey = localStorage.getItem("privateKey");
       if (savedKey) {
         setPrivateKey(savedKey);
         loadNotes(savedKey);
@@ -29,7 +31,9 @@ function App() {
 
   const loadNotes = (key: string) => {
     //Loads encrypted Notes
-    const encryptedNotes = JSON.parse(localStorage.getItem('encryptedNotes') || '[]');
+    const encryptedNotes = JSON.parse(
+      localStorage.getItem("encryptedNotes") || "[]"
+    );
 
     //For each note, decrypt them using the Password Hash
     const decryptedNotes = encryptedNotes.map((encNote: string) => {
@@ -38,7 +42,11 @@ function App() {
         const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
         return decryptedData;
       } catch (e) {
-        return { id: 'error', text: 'Wrong private key for this note', timestamp: Date.now() };
+        return {
+          id: "error",
+          text: "Wrong private key for this note",
+          timestamp: Date.now(),
+        };
       }
     });
     setNotes(decryptedNotes);
@@ -46,31 +54,31 @@ function App() {
 
   const handleLogin = () => {
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return;
     }
     // Hashes the password
     const key = CryptoJS.SHA256(password).toString();
 
-    //Password hash is set as the private key 
+    //Password hash is set as the private key
     setPrivateKey(key);
     setLoggedIn(true);
 
     //Storage handling
-    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem("loggedIn", "true");
     //Private key is set
-    localStorage.setItem('privateKey', key);
+    localStorage.setItem("privateKey", key);
     loadNotes(key);
-    setPassword('');
-    setError('');
+    setPassword("");
+    setError("");
   };
 
   const handleLogout = () => {
     setLoggedIn(false);
-    setPrivateKey('');
+    setPrivateKey("");
     setNotes([]);
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('privateKey');
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("privateKey");
   };
 
   const handleAddNote = () => {
@@ -83,31 +91,38 @@ function App() {
     };
 
     //Encrypts the note and adds it to the list
-    const encryptedNote = CryptoJS.AES.encrypt(JSON.stringify(newNote), privateKey).toString();
-    const encryptedNotes = JSON.parse(localStorage.getItem('encryptedNotes') || '[]');
+    const encryptedNote = CryptoJS.AES.encrypt(
+      JSON.stringify(newNote),
+      privateKey
+    ).toString();
+    const encryptedNotes = JSON.parse(
+      localStorage.getItem("encryptedNotes") || "[]"
+    );
     encryptedNotes.push(encryptedNote);
-    localStorage.setItem('encryptedNotes', JSON.stringify(encryptedNotes));
+    localStorage.setItem("encryptedNotes", JSON.stringify(encryptedNotes));
     setNotes([newNote, ...notes]);
-    setNote('');
+    setNote("");
   };
 
   const handleDeleteNote = (id: string) => {
-    const updatedNotes = notes.filter(note => note.id !== id);
+    const updatedNotes = notes.filter((note) => note.id !== id);
     setNotes(updatedNotes);
-    const encryptedNotes = updatedNotes.map(note =>
+    const encryptedNotes = updatedNotes.map((note) =>
       CryptoJS.AES.encrypt(JSON.stringify(note), privateKey).toString()
     );
-    localStorage.setItem('encryptedNotes', JSON.stringify(encryptedNotes));
+    localStorage.setItem("encryptedNotes", JSON.stringify(encryptedNotes));
   };
 
-  const filteredNotes = notes.filter(note =>
+  const filteredNotes = notes.filter((note) =>
     //Search function
     note.text.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-
-  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, action: () => void) => {
-    if (event.key === 'Enter') {
+  const handleKeyPress = (
+    event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+    action: () => void
+  ) => {
+    if (event.key === "Enter") {
       event.preventDefault(); // Prevent default form submission
       action();
     }
@@ -117,7 +132,9 @@ function App() {
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
         {!loggedIn ? (
           <div className="p-8 space-y-6">
-            <h2 className="text-3xl font-extrabold text-teal-600 text-center">Secure Notes</h2>
+            <h2 className="text-3xl font-extrabold text-teal-600 text-center">
+              Secure Notes
+            </h2>
             <div className="relative">
               <input
                 className="w-full p-4 bg-gray-100 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-400"
@@ -131,7 +148,7 @@ function App() {
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-teal-600"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? "Hide" : "Show"}
               </button>
             </div>
             {error && <p className="text-red-500 text-center">{error}</p>}
@@ -145,7 +162,9 @@ function App() {
         ) : (
           <div className="p-8 space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-teal-600">Your Secure Notes</h2>
+              <h2 className="text-2xl font-bold text-teal-600">
+                Your Secure Notes
+              </h2>
               <button
                 className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105"
                 onClick={handleLogout}
@@ -164,7 +183,10 @@ function App() {
               {filteredNotes.length > 0 ? (
                 <ul className="space-y-3">
                   {filteredNotes.map((n) => (
-                    <li key={n.id} className="bg-white p-4 rounded-xl shadow-md">
+                    <li
+                      key={n.id}
+                      className="bg-white p-4 rounded-xl shadow-md"
+                    >
                       <div className="flex justify-between items-start">
                         <span className="text-gray-800">{n.text}</span>
                         <button
@@ -181,7 +203,9 @@ function App() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-center text-gray-500">No notes yet. Add one below!</p>
+                <p className="text-center text-gray-500">
+                  No notes yet. Add one below!
+                </p>
               )}
             </div>
             <div className="space-y-4">
@@ -205,6 +229,5 @@ function App() {
       </div>
     </div>
   );
-  
-}  
+}
 export default App;
